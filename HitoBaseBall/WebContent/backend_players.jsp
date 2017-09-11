@@ -9,7 +9,6 @@
 <%@page import="javax.servlet.http.HttpSession"%>
 
 <%
-
 session = request.getSession();
 String teamId = (String)session.getAttribute("teamId");
 LinkedList sqlplayers = (LinkedList)session.getAttribute("sqlplayers");
@@ -202,7 +201,7 @@ if(rs.next()) {
 
 <hr>
 
-<form action="AddPlayer" enctype="multipart/form-data" method="post">
+<form action="AddPlayer" accept-charset='UTF-8' enctype="multipart/form-data" method="post">
 <div id="table" class=" w3-container w3-card-4 w3-light-grey w3-text-blue w3-margin">
 <div class="tabless ">
   	

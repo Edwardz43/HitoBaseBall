@@ -5,6 +5,10 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
+import java.nio.ByteBuffer;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -36,7 +40,8 @@ import com.oreilly.servlet.MultipartRequest;
 public class AddPlayer extends HttpServlet {
 	HttpSession session;
 	String id;
-	private HttpServletRequest request;
+	PrintWriter out;
+	//private HttpServletRequest request;
 	private List<FileItem> items;
 	private LinkedList<PlayerModel> players;
 	
@@ -44,14 +49,14 @@ public class AddPlayer extends HttpServlet {
 		doPost(request, response);
 	}
 
-	protected void doPost(HttpServletRequest req, HttpServletResponse response) throws ServletException, IOException {
-		request = req;
+	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		response.setContentType("text/html; charset=UTF-8");
-		PrintWriter out = response.getWriter();
+		out = response.getWriter();
 		request.setCharacterEncoding("UTF-8");
+		
 		session = request.getSession();
 		id  = (String)session.getAttribute("teamId");
-		players = doDo();
+		players = doDo(request);
 		Players player;
 		try {
 			player = new Players();
@@ -60,10 +65,9 @@ public class AddPlayer extends HttpServlet {
 			// TODO Auto-generated catch block
 			System.out.println(e.toString());
 		}
-		
 	}
 	
-	private LinkedList<PlayerModel> doDo() {
+	private LinkedList<PlayerModel> doDo(HttpServletRequest request) {
 		// Create a factory for disk-based file items
 		DiskFileItemFactory factory = new DiskFileItemFactory();
 
@@ -78,7 +82,7 @@ public class AddPlayer extends HttpServlet {
 		// Parse the request
 		try {
 			items = upload.parseRequest(request);
-			System.out.println(items.size());
+			//System.out.println(items.size());
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			System.out.println(e.toString());
@@ -110,7 +114,7 @@ public class AddPlayer extends HttpServlet {
 		    	tmp = new LinkedList<>();
 		    	players.add(player);
 		    	dataCount++;
-		    	System.out.println(players.size());
+		    	//System.out.println(players.size());
 		    }
 		}
 		
@@ -125,7 +129,18 @@ public class AddPlayer extends HttpServlet {
 						player.setNumber(tmpPlayer.get(j));
 						break;
 					case 1:
-						player.setName(tmpPlayer.get(j));
+						String str = tmpPlayer.get(j);
+						//String name = Charset.forName("UTF-8").encode(str).toString();
+			
+					String name = "";
+					try {
+						name = new String (str.getBytes("iso-8859-1"), "UTF-8");
+					} catch (UnsupportedEncodingException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+						player.setName(name);
+						System.out.println(name);
 						break;
 					case 2:
 						player.setHeight(tmpPlayer.get(j));
