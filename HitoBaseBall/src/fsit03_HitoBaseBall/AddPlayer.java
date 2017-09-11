@@ -1,5 +1,6 @@
 package fsit03_HitoBaseBall;
 
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -92,21 +93,25 @@ public class AddPlayer extends HttpServlet {
 		Iterator<FileItem> iter = items.iterator();
 		int dataCount = 1;
 		LinkedList<LinkedList<String>> players = new LinkedList<>();
-		LinkedList<String> tmp = new LinkedList<>();
+		LinkedList tmp = new LinkedList<>();
 		while (iter.hasNext()) {
 		    FileItem item = iter.next();
 		    String fileName = item.getName();
 		    String value =item.getString();
 		    String key = item.getFieldName();
-		    //System.out.println("n:"+dataCount+" fileName:"+fileName+" value:"+value+" key:" + key);
+		    System.out.println("n:"+dataCount+" fileName:"+fileName+" value:"+value+" key:" + key);
 		    if(fileName != null) {
-		    	tmp.add(key);
-		    	//System.out.println(tmp.size() +" : " + key);
+		    	BufferedImage bi = null;
+		    	try {
+					bi = ImageIO.read(item.getInputStream());
+					tmp.add(bi);
+				} catch (IOException e) {e.printStackTrace();}
+		    	
 		    }else {
 		    	tmp.add(value);
 		    }
 		    if (value.equals("end")) {
-		    	LinkedList<String> player = new LinkedList<>();
+		    	LinkedList player = new LinkedList<>();
 		    	for(int i = 0; i < tmp.size(); i ++) {
 		    		player.add(tmp.get(i));
 		    	}
@@ -120,49 +125,57 @@ public class AddPlayer extends HttpServlet {
 		
 		LinkedList<PlayerModel> ps = new LinkedList<>();
 		for(int i = 0; i < players.size(); i++) {
-			LinkedList<String> tmpPlayer = players.get(i);
+			LinkedList tmpPlayer = players.get(i);
 			PlayerModel player = new PlayerModel();
 			for(int j = 0; j < tmpPlayer.size() - 1; j++) {
 				switch(j) {
 					case 0:
 						player.setTemid(id);
-						player.setNumber(tmpPlayer.get(j));
+						player.setNumber((String)tmpPlayer.get(j));
 						break;
 					case 1:
-						String str = tmpPlayer.get(j);
-						//String name = Charset.forName("UTF-8").encode(str).toString();
-			
-					String name = "";
-					try {
-						name = new String (str.getBytes("iso-8859-1"), "UTF-8");
-					} catch (UnsupportedEncodingException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
+						String str = (String)tmpPlayer.get(j);
+						String name = "";
+						try {
+							name = new String (str.getBytes("iso-8859-1"), "UTF-8");
+						} catch (UnsupportedEncodingException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
 						player.setName(name);
 						System.out.println(name);
 						break;
 					case 2:
-						player.setHeight(tmpPlayer.get(j));
+						player.setHeight((String)tmpPlayer.get(j));
 						break;
 					case 3:
-						player.setWeight(tmpPlayer.get(j));
+						player.setWeight((String)tmpPlayer.get(j));
 						break;
 					case 4:
-						player.setBirthday(tmpPlayer.get(j));
+						player.setBirthday((String)tmpPlayer.get(j));
 						break;
 					case 5:
-						tmpPhoto(player.getNumber(), tmpPlayer.get(j));
-						System.out.println("55");
+						String uploadPath = 
+						getServletContext().getInitParameter("upload-path");
+						try {
+							ImageIO.write(
+									(BufferedImage)tmpPlayer.get(j), 
+									"png", new File(uploadPath+id+"_"+player.getNumber()+".png"));
+						} catch (IOException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+		    	
+						System.out.println(tmpPlayer.get(j));
 						break;
 					case 6:
-						player.setThr(tmpPlayer.get(j));
+						player.setThr((String)tmpPlayer.get(j));
 						break;
 					case 7:
-						player.setHit(tmpPlayer.get(j));
+						player.setHit((String)tmpPlayer.get(j));
 						break;
 					case 8:
-						player.setPosition(tmpPlayer.get(j));
+						player.setPosition((String)tmpPlayer.get(j));
 						break;
 					default:
 						StringBuilder sb = new StringBuilder();
